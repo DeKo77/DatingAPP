@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.api.Data;
 using DatingApp.api.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -36,9 +37,13 @@ namespace DatingApp.api
         public void ConfigureServices(IServiceCollection services)
         { 
             services.AddScoped<IAuthRepository , AuthRepositry>();
+            services.AddScoped<IDatingRepositry , DatingRepositry>();
             services.AddCors();
+            services.AddAutoMapper(typeof(DatingRepositry).Assembly);
             services.AddDbContext<DataContext>(x=> x.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>{
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -57,7 +62,7 @@ namespace DatingApp.api
             throw new NotImplementedException();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline. 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
