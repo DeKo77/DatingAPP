@@ -11,12 +11,29 @@ import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './register/register.component';
 import { ErrorInterceptorProvider } from './_services/error.interceptor';
 import { AlertifyService } from './_services/alertify.service';
-import { MemberListComponent } from './member-list/member-list.component';
+import { MemberListComponent } from './members/member-list/member-list.component';
 import { ListsComponent } from './lists/lists.component';
 import { MessagesComponent } from './messages/messages.component';
 import {RouterModule} from '@angular/router'
 import {appRoutes} from './routes';
 import { from } from 'rxjs';
+import { MemberCardComponent } from './members/member-card/member-card.component';
+import { JwtModule } from '@auth0/angular-jwt';
+import { MemberDetailedComponent } from './members/member-Detailed/member-detailed.component';
+import { TabsModule } from 'ngx-bootstrap/tabs';
+import { AuthGuard } from './_guards/auth.guard';
+import { UserService } from './_services/user.service';
+import {UserDetailResolver} from '../app/_resolvers/UserDetailResolver'
+import {UsersListResolver} from '../app/_resolvers/UsersListResolver'
+import { NgxGalleryModule } from 'ngx-gallery-9';
+// import { NgxGalleryModule } from ;
+
+export function tokenGetter()
+{
+  return localStorage.getItem('token');
+}
+
+
 @NgModule({
   declarations: [					
     AppComponent,
@@ -25,7 +42,9 @@ import { from } from 'rxjs';
       RegisterComponent,
       MemberListComponent,
       ListsComponent,
-      MessagesComponent
+      MessagesComponent,
+      MemberCardComponent,
+      MemberDetailedComponent
    ],
   imports: [
     BrowserModule,
@@ -33,12 +52,25 @@ import { from } from 'rxjs';
     FormsModule,
     BrowserAnimationsModule,
     BsDropdownModule.forRoot(),
-    RouterModule.forRoot(appRoutes)
+    TabsModule.forRoot(),
+    RouterModule.forRoot(appRoutes),
+    NgxGalleryModule,
+    JwtModule.forRoot({
+      config:{
+        tokenGetter: tokenGetter,
+        allowedDomains: ['localhost:5000'],
+        disallowedRoutes: ["localhost:5000/api/auth"]
+      }
+    })
   ],
   providers: [
     AuthService ,
     ErrorInterceptorProvider,
-    AlertifyService
+    AlertifyService,
+    AuthGuard,
+    UserService,
+    UserDetailResolver,
+    UsersListResolver
   ],
   bootstrap: [AppComponent]
 })
